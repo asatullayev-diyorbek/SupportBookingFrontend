@@ -1,0 +1,50 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+/* Custom utilities */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .gradient-primary {
+    background: linear-gradient(135deg, #1E88E5 0%, #1976D2 100%);
+  }
+  
+  .gradient-card {
+    background: linear-gradient(145deg, #ffffff 0%, #fafbff 100%);
+  }
+  
+  .shadow-soft {
+    box-shadow: 0 2px 8px rgba(30, 136, 229, 0.08);
+  }
+  
+  .shadow-soft-lg {
+    box-shadow: 0 4px 16px rgba(30, 136, 229, 0.12);
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
