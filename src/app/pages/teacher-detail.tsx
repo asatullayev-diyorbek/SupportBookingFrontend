@@ -180,10 +180,10 @@ export default function TeacherDetailPage() {
       <Dialog.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[1000]" />
-          <Dialog.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[40px] z-[1001] outline-none max-w-lg mx-auto p-8 pb-10 shadow-2xl animate-in slide-in-from-bottom duration-300">
-            <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-8" />
+          <Dialog.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[40px] z-[1001] outline-none max-w-lg mx-auto p-8 pb-3 shadow-2xl animate-in slide-in-from-bottom duration-300">
+            <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-2" />
             
-            <Dialog.Title className="text-2xl font-black text-slate-900 mb-6 leading-none">
+            <Dialog.Title className="text-2xl font-black text-slate-900 mb-3 leading-none">
               Tasdiqlash
             </Dialog.Title>
             
@@ -215,7 +215,7 @@ export default function TeacherDetailPage() {
             <div className="flex gap-3">
               <Dialog.Close asChild>
                 <button className="flex-1 py-4 rounded-2xl font-black text-slate-400 bg-slate-100 active:scale-95 transition-all text-xs tracking-widest">
-                  BEKOR
+                  Ortga
                 </button>
               </Dialog.Close>
               <button
