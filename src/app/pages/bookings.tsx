@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { toast } from 'sonner';
-import { History, CalendarCheck, Star, MessageSquare, TicketCheck } from 'lucide-react';
+import { History, CalendarCheck, Star, MessageSquare, TicketCheck, Sparkles, AlertCircle } from 'lucide-react';
 
 import { getMyBookings, MyBooking } from '../lib/booking';
 import { cancelBooking, reviewBooking } from '../lib/booking-create';
@@ -10,7 +10,6 @@ import { StarRating } from '../components/star-rating';
 import { cn } from '../lib/utils';
 
 export default function BookingsPage() {
-  // 1. Dastlabki qiymatni [] qilib belgilaymiz (Xatolikni oldini oladi)
   const [bookings, setBookings] = useState<MyBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'history'>('upcoming');
@@ -26,10 +25,9 @@ export default function BookingsPage() {
     try {
       setLoading(true);
       const data = await getMyBookings();
-      setBookings(data || []); // data undefined bo'lsa ham [] beradi
+      setBookings(data || []);
     } catch {
       toast.error("Ma'lumotlar yuklanmadi");
-      setBookings([]);
     } finally {
       setLoading(false);
     }
@@ -37,9 +35,9 @@ export default function BookingsPage() {
 
   useEffect(() => { loadBookings(); }, []);
 
-  // 2. Filter mantiqini xavfsizroq (optional chaining) qilish
-  const upcoming = (bookings || []).filter((b) => b.status === 'booked');
-  const history = (bookings || []).filter((b) => b.status !== 'booked');
+  const upcoming = bookings.filter((b) => b.status === 'booked');
+  const history = bookings.filter((b) => b.status !== 'booked');
+  const currentList = activeTab === 'upcoming' ? upcoming : history;
 
   const handleCancel = async (id: number) => {
     try {
@@ -62,67 +60,70 @@ export default function BookingsPage() {
   };
 
   const handleSubmitReview = async () => {
-    if (!selectedBooking || rating === 0) {
-      toast.error('Iltimos, yulduzcha tanlang');
-      return;
-    }
+    if (!selectedBooking || rating === 0) return toast.error('Yulduzcha tanlang');
     try {
       setActionLoading(selectedBooking.id);
       await reviewBooking(selectedBooking.id, rating, reviewText);
       setBookings((prev) => prev.map((b) => b.id === selectedBooking.id ? { ...b, stars: rating, review: reviewText } : b));
-      toast.success('Rahmat! Baholash yuborildi');
+      toast.success('Rahmat!');
       setReviewModalOpen(false);
-    } catch {
-      toast.error('Baholashda xatolik');
     } finally {
       setActionLoading(null);
     }
   };
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f8f9fb]">
+    <div className="min-h-screen flex items-center justify-center bg-[#f4f7f9]">
       <div className="w-10 h-10 border-4 border-[#0088cc] border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#f8f9fb] pb-32">
-      {/* 🌊 LIQUID TAB HEADER */}
-      <div className="sticky top-0 z-40 bg-[#0088cc] px-6 pt-8 pb-6 rounded-b-[32px] shadow-lg shadow-blue-500/10">
-        <div className="flex items-center gap-2 mb-4">
-           <TicketCheck className="w-5 h-5 text-blue-200" />
-           <h1 className="text-xl font-black text-white tracking-tight">Qo'shimcha darslar</h1>
+    <div className="min-h-screen bg-[#f4f7f9] pb-32 overflow-x-hidden">
+      
+      {/* 🟦 PREMIUM HEADER */}
+      <div className="sticky top-0 z-40 bg-[#0088cc] px-6 pt-10 pb-8 rounded-b-[45px] shadow-[0_15px_40px_rgba(0,136,204,0.25)]">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl pointer-events-none" />
+        
+        <div className="relative z-10 flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+             <div className="p-2.5 bg-white/20 backdrop-blur-lg rounded-2xl border border-white/20 shadow-inner">
+               <TicketCheck className="w-6 h-6 text-white" />
+             </div>
+             <div>
+               <h1 className="text-2xl font-black text-white tracking-tighter italic leading-none">Darslarim</h1>
+               <p className="text-blue-100 text-[10px] font-bold uppercase tracking-[0.2em] opacity-80 mt-1">Jadval boshqaruvi</p>
+             </div>
+          </div>
+          <Sparkles className="w-6 h-6 text-yellow-300 animate-pulse" />
         </div>
         
-        <div className="flex bg-white/10 p-1.5 rounded-2xl backdrop-blur-md border border-white/5">
+        <div className="flex bg-black/10 p-1.5 rounded-[22px] backdrop-blur-xl border border-white/10">
           <button 
             onClick={() => setActiveTab('upcoming')}
             className={cn(
-              "flex-1 py-2.5 text-[13px] font-black rounded-xl transition-all duration-500 z-10 flex items-center justify-center gap-2",
-              activeTab === 'upcoming' ? "bg-white text-[#0088cc] shadow-md scale-100" : "text-white/70 scale-95 opacity-80"
+              "flex-1 py-3 text-[12px] font-black rounded-[18px] transition-all duration-300",
+              activeTab === 'upcoming' ? "bg-white text-[#0088cc] shadow-md" : "text-white/60"
             )}
-          >
-            <CalendarCheck className="w-4 h-4" /> FAOL
-          </button>
+          > FAOL </button>
           <button 
             onClick={() => setActiveTab('history')}
             className={cn(
-              "flex-1 py-2.5 text-[13px] font-black rounded-xl transition-all duration-500 z-10 flex items-center justify-center gap-2",
-              activeTab === 'history' ? "bg-white text-[#0088cc] shadow-md scale-100" : "text-white/70 scale-95 opacity-80"
+              "flex-1 py-3 text-[12px] font-black rounded-[18px] transition-all duration-300",
+              activeTab === 'history' ? "bg-white text-[#0088cc] shadow-md" : "text-white/60"
             )}
-          >
-            <History className="w-4 h-4" /> TARIX
-          </button>
+          > TARIX </button>
         </div>
       </div>
 
-      <div className="p-5 space-y-4 max-w-lg mx-auto">
-        {(activeTab === 'upcoming' ? upcoming : history).length > 0 ? (
-          (activeTab === 'upcoming' ? upcoming : history).map((b, idx) => (
+      {/* 📋 LIST SECTION - Teacher Card kabi animatsiya qo'shildi */}
+      <div className="p-5 space-y-4 max-w-lg mx-auto relative z-10">
+        {currentList.length > 0 ? (
+          currentList.map((b, index) => (
             <div 
-               key={b.id} 
-               className="animate-in fade-in slide-in-from-bottom-4 duration-500"
-               style={{ animationDelay: `${idx * 60}ms` }}
+              key={b.id}
+              className="animate-in fade-in slide-in-from-bottom-8 duration-500 fill-mode-both"
+              style={{ animationDelay: `${index * 100}ms` }}
             >
               <BookingCard
                 id={b.id}
@@ -138,54 +139,41 @@ export default function BookingsPage() {
             </div>
           ))
         ) : (
-          <div className="flex flex-col items-center justify-center py-24 animate-in zoom-in-95 duration-700">
-            <div className="w-20 h-20 bg-gray-100 rounded-[35px] flex items-center justify-center mb-5 rotate-12">
-               <CalendarCheck className="w-10 h-10 text-gray-300" />
+          <div className="flex flex-col items-center justify-center py-24 text-center animate-in zoom-in-95 duration-500">
+            <div className="w-20 h-20 bg-white rounded-[35px] shadow-xl flex items-center justify-center mb-6">
+              <AlertCircle className="text-slate-200 w-10 h-10" />
             </div>
-            <p className="text-gray-400 font-black text-lg">Ma'lumot topilmadi</p>
-            <p className="text-gray-300 text-sm mt-1 italic">Hozircha hech qanday dars mavjud emas</p>
+            <p className="text-slate-400 font-black text-lg italic">Ma'lumot topilmadi</p>
           </div>
         )}
       </div>
 
-      {/* 🌟 REVIEW DIALOG (Radix UI) */}
+      {/* 🌟 REVIEW DIALOG */}
       <Dialog.Root open={reviewModalOpen} onOpenChange={setReviewModalOpen}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-[#1c1c1c]/60 backdrop-blur-md z-[100] animate-in fade-in duration-300" />
-          <Dialog.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[40px] p-8 shadow-2xl z-[101] animate-in slide-in-from-bottom duration-700 outline-none">
-            <div className="w-14 h-1.5 bg-gray-100 rounded-full mx-auto mb-8" />
-            
-            <Dialog.Title className="text-2xl font-black text-gray-900 mb-2 flex items-center gap-3">
-              <Star className="w-7 h-7 text-yellow-400 fill-yellow-400" />
-              Baholash
+          <Dialog.Overlay className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[1000] animate-in fade-in duration-300" />
+          <Dialog.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[40px] p-8 pb-10 shadow-2xl z-[1001] outline-none max-w-lg mx-auto animate-in slide-in-from-bottom duration-500">
+            <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-8" />
+            <Dialog.Title className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3 italic">
+              <Star className="w-7 h-7 text-yellow-400 fill-yellow-400" /> Baholash
             </Dialog.Title>
-            <p className="text-gray-400 font-medium mb-8">Dars qanday o'tdi? Ustozni baholang:</p>
-
-            <div className="flex justify-center mb-8 bg-gray-50/50 py-8 rounded-[32px] border border-gray-100 shadow-inner">
+            <div className="mb-8 flex justify-center py-6 bg-slate-50 rounded-[30px] border border-slate-100 shadow-inner">
               <StarRating rating={rating} onChange={setRating} />
             </div>
-
-            <div className="relative mb-8">
-              <MessageSquare className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
-              <textarea
-                placeholder="Fikr va mulohazalaringiz..."
-                value={reviewText}
-                onChange={(e) => setReviewText(e.target.value)}
-                className="w-full bg-gray-50/80 border-2 border-transparent focus:border-[#0088cc]/10 rounded-[24px] p-5 pl-12 text-[15px] font-bold text-gray-800 outline-none transition-all placeholder:text-gray-300"
-                rows={3}
-              />
-            </div>
-
-            <div className="flex gap-4">
+            <textarea
+              placeholder="Fikrlaringiz..."
+              value={reviewText}
+              onChange={(e) => setReviewText(e.target.value)}
+              className="w-full bg-slate-50 border-none rounded-[28px] p-5 text-sm font-bold text-slate-800 outline-none min-h-[120px] mb-8"
+            />
+            <div className="flex gap-3">
               <Dialog.Close asChild>
-                <button className="flex-1 py-4.5 rounded-[22px] font-black text-gray-400 bg-gray-50 active:scale-95 transition-all">
-                  YOPISH
-                </button>
+                <button className="flex-1 py-4.5 rounded-[22px] font-black text-slate-400 bg-slate-100 text-xs tracking-widest">BEKOR</button>
               </Dialog.Close>
               <button
                 onClick={handleSubmitReview}
                 disabled={actionLoading === selectedBooking?.id}
-                className="flex-[2] py-4.5 rounded-[22px] bg-[#0088cc] text-white font-black shadow-xl shadow-blue-500/30 active:scale-95 transition-all disabled:opacity-50"
+                className="flex-[2] py-4.5 rounded-[22px] bg-[#0088cc] text-white font-black shadow-lg text-xs tracking-widest uppercase"
               >
                 {actionLoading === selectedBooking?.id ? 'YUBORILMOQDA...' : 'YUBORISH'}
               </button>

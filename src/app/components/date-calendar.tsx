@@ -1,5 +1,5 @@
-import { useEffect, useRef, memo } from 'react'; // memo qo'shildi
-import { format, isToday } from 'date-fns';
+import { useEffect, useRef, memo, useMemo } from 'react';
+import { format, isToday, startOfDay } from 'date-fns';
 import { uz } from 'date-fns/locale';
 import { cn } from '../lib/utils';
 
@@ -8,25 +8,22 @@ interface Props {
   onDateChange: (date: Date) => void;
 }
 
-// Komponentni memo bilan o'raymiz
 export const DateCalendar = memo(({ selectedDate, onDateChange }: Props) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLButtonElement>(null);
 
-  // Kunlarni har safar renderda qayta hisoblamaslik uchun useMemo ichiga olish ham mumkin
-  const days = Array.from({ length: 14 }).map((_, i) => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0); // Vaqtni nolga tushiramiz (taqqoslashda xato qilmaslik uchun)
-    d.setDate(d.getDate() + i);
-    return d;
-  });
+  // Kunlarni useMemo bilan xotirada saqlaymiz (14 kun juda ko'p emas, lekin tartib uchun yaxshi)
+  const days = useMemo(() => {
+    return Array.from({ length: 14 }).map((_, i) => {
+      const d = new Date();
+      return startOfDay(new Date(d.setDate(d.getDate() + i)));
+    });
+  }, []);
 
   useEffect(() => {
     if (activeRef.current && scrollRef.current) {
       const container = scrollRef.current;
       const element = activeRef.current;
-    
-      // Elementning konteynerga nisbatan markazda bo'lishini hisoblash
       const targetScrollPos = element.offsetLeft - (container.offsetWidth / 2) + (element.offsetWidth / 2);
       
       container.scrollTo({
@@ -34,16 +31,16 @@ export const DateCalendar = memo(({ selectedDate, onDateChange }: Props) => {
         behavior: 'smooth'
       });
     }
-    // Faqat tanlangan sana o'zgargandagina scroll qiladi
   }, [selectedDate.toDateString()]); 
 
   return (
-    <div className="relative">
-      <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#f8f9fb] via-[#f8f9fb]/80 to-transparent z-10 pointer-events-none rounded-r-[32px]" />
+    <div className="relative bg-white/50 backdrop-blur-sm py-2">
+      {/* O'ng tarafdagi yumshoq gradient (ixchamroq) */}
+      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
       
       <div 
         ref={scrollRef}
-        className="flex gap-3 overflow-x-auto pb-4 pt-2 px-4 no-scrollbar scroll-smooth snap-x snap-mandatory"
+        className="flex gap-2 overflow-x-auto pb-2 px-4 no-scrollbar scroll-smooth snap-x"
       >
         {days.map((day) => {
           const isActive = day.toDateString() === selectedDate.toDateString();
@@ -53,35 +50,44 @@ export const DateCalendar = memo(({ selectedDate, onDateChange }: Props) => {
             <button
               key={day.toISOString()}
               ref={isActive ? activeRef : null}
-              type="button" // Form ichida bo'lsa, refresh bermasligi uchun
+              type="button"
               onClick={(e) => {
-                e.preventDefault(); // Sahifa refreshini to'xtatish
+                e.preventDefault();
                 onDateChange(day);
               }}
               className={cn(
-                'min-w-[68px] py-4 rounded-[24px] text-center transition-all duration-300 relative active:scale-95 flex flex-col items-center gap-1 snap-center',
+                // O'lchamlar ixchamlashtirildi: min-w-[56px], py-2.5
+                'min-w-[54px] py-2.5 rounded-[18px] text-center transition-all duration-200 relative active:scale-95 flex flex-col items-center gap-0.5 snap-center border',
                 isActive 
-                  ? 'bg-[#0088cc] text-white scale-105 z-20 shadow-lg shadow-[#0088cc]/20' 
-                  : 'bg-white text-gray-400 border border-gray-100 hover:bg-gray-50'
+                  ? 'bg-[#0088cc] text-white border-[#0088cc] shadow-md shadow-[#0088cc]/15' 
+                  : 'bg-white text-gray-500 border-gray-100 hover:border-gray-200'
               )}
             >
-              <div className={cn("text-[10px] font-bold uppercase tracking-wider", isActive ? "text-blue-100" : "text-gray-400")}>
+              {/* Hafta kuni (kichikroq) */}
+              <span className={cn(
+                "text-[9px] font-semibold uppercase tracking-tight", 
+                isActive ? "text-blue-100/80" : "text-gray-400"
+              )}>
                 {format(day, 'EEE', { locale: uz })}
-              </div>
-              <div className="text-xl font-black leading-none tracking-tighter">
-                {format(day, 'dd')}
-              </div>
+              </span>
               
+              {/* Sana (ixchamroq) */}
+              <span className="text-base font-bold tabular-nums">
+                {format(day, 'dd')}
+              </span>
+              
+              {/* "Bugun" belgisi (nuqta o'rniga chiziqcha ixchamroq ko'rinadi) */}
               {today && (
                 <div className={cn(
-                  "w-1.5 h-1.5 rounded-full absolute bottom-2",
-                  isActive ? "bg-white" : "bg-[#0088cc] animate-pulse"
+                  "w-3 h-0.5 rounded-full absolute bottom-1.5",
+                  isActive ? "bg-white/60" : "bg-[#0088cc]"
                 )} />
               )}
             </button>
           );
         })}
-        <div className="min-w-[40px] shrink-0" />
+        {/* Oxiridagi bo'sh joy */}
+        <div className="min-w-[20px] shrink-0" />
       </div>
     </div>
   );
