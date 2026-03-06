@@ -22,7 +22,7 @@ export default function TeacherDetailPage() {
   const [comment, setComment] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
-  
+
   const [loading, setLoading] = useState(true);
   const [isDataUpdating, setIsDataUpdating] = useState(false);
 
@@ -97,7 +97,7 @@ export default function TeacherDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#f4f7f9] pb-32">
-      
+
       {/* 🏙 PREMIUM HEADER */}
       <div className="relative bg-[#0088cc] pt-6 pb-16 px-6 rounded-b-[45px] shadow-xl shadow-[#0088cc]/20">
         {/* <button 
@@ -136,7 +136,7 @@ export default function TeacherDetailPage() {
 
       {/* 🕒 SLOT SECTION */}
       <div className={cn(
-        "px-5 mt-8 transition-all duration-300", 
+        "px-5 mt-8 transition-all duration-300",
         isDataUpdating ? "opacity-40 scale-[0.98]" : "opacity-100"
       )}>
         <div className="flex items-center justify-between mb-5 px-1">
@@ -146,7 +146,7 @@ export default function TeacherDetailPage() {
           </h2>
           <div className="bg-white px-3 py-1.5 rounded-xl shadow-sm border border-slate-50">
             <span className="text-[10px] font-black text-[#0088cc] uppercase">
-               {formatDate(selectedDate)}
+              {formatDate(selectedDate)}
             </span>
           </div>
         </div>
@@ -176,59 +176,71 @@ export default function TeacherDetailPage() {
         </div>
       </div>
 
-      {/* 📝 CONFIRMATION MODAL (Drawer Style) */}
-      <Dialog.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[1000]" />
-          <Dialog.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[40px] z-[1001] outline-none max-w-lg mx-auto p-8 pb-3 shadow-2xl animate-in slide-in-from-bottom duration-300">
-            <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-2" />
-            
-            <Dialog.Title className="text-2xl font-black text-slate-900 mb-3 leading-none">
-              Tasdiqlash
-            </Dialog.Title>
-            
-            {selectedSlot && (
-              <div className="space-y-4 mb-8">
-                <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-[28px] border border-slate-100">
-                  <div className="w-12 h-12 bg-[#0088cc] rounded-2xl flex items-center justify-center shadow-lg shadow-[#0088cc]/20">
-                    <CalendarIcon className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black text-[#0088cc] uppercase tracking-widest mb-1">Dars vaqti</p>
-                    <p className="font-black text-slate-800 text-lg leading-none">
-                      {formatDate(selectedDate)} - {selectedSlot.time.slice(0, 5)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="relative">
-                  <textarea
-                    placeholder="Izoh qoldiring..."
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    className="w-full bg-slate-50 border-2 border-slate-50 rounded-[28px] p-6 text-sm font-bold text-slate-800 placeholder:text-slate-300 focus:border-[#0088cc]/20 focus:bg-white outline-none min-h-[120px] resize-none transition-all"
-                  />
-                </div>
+      {/* 📝 TASDIQLASH MODALI */}
+<Dialog.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
+  <Dialog.Portal>
+    <Dialog.Overlay className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[1000] animate-in fade-in duration-300" />
+    <Dialog.Content 
+      className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[32px] z-[1001] outline-none max-w-lg mx-auto p-5 pb-8 shadow-2xl animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-y-auto"
+    >
+      <div className="flex flex-col">
+        <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
+        
+        <Dialog.Title className="text-xl font-black text-center text-slate-900 mb-1 leading-none">
+          Tasdiqlash
+        </Dialog.Title>
+        <p className="text-[13px] text-slate-400 text-center font-medium mb-6">
+          Tanlangan vaqtni tasdiqlang
+        </p>
+        
+        {selectedSlot && (
+          <div className="space-y-4 mb-8">
+            {/* 🕒 VAQT MA'LUMOTI */}
+            <div className="flex items-center gap-4 bg-blue-50/50 p-4 rounded-[22px] border border-blue-100/50">
+              <div className="w-11 h-11 bg-[#0088cc] rounded-[14px] flex items-center justify-center shadow-md">
+                <CalendarIcon className="w-5 h-5 text-white" />
               </div>
-            )}
-
-            <div className="flex gap-3">
-              <Dialog.Close asChild>
-                <button className="flex-1 py-4 rounded-2xl font-black text-slate-400 bg-slate-100 active:scale-95 transition-all text-xs tracking-widest">
-                  Ortga
-                </button>
-              </Dialog.Close>
-              <button
-                onClick={handleConfirmBooking}
-                disabled={isBooking}
-                className="flex-[2] py-4 rounded-2xl bg-[#0088cc] text-white font-black shadow-lg shadow-[#0088cc]/30 active:scale-95 transition-all disabled:opacity-50 text-xs tracking-widest"
-              >
-                {isBooking ? 'YUKLANMOQDA...' : 'TASDIQLASH'}
-              </button>
+              <div>
+                <p className="text-[10px] font-black text-[#0088cc] uppercase tracking-[0.1em] mb-0.5">Sana va vaqt</p>
+                <p className="font-black text-slate-800 text-[16px] leading-none">
+                  {formatDate(selectedDate)}, {selectedSlot.time.slice(0, 5)}
+                </p>
+              </div>
             </div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+
+            {/* ✍️ IZOH QISMI */}
+            <div className="space-y-2">
+              <p className="ml-2 text-[11px] font-black text-slate-400 uppercase tracking-wider italic">
+                Ustoz uchun izoh (ixtiyoriy)
+              </p>
+              <textarea
+                placeholder="Masalan: Mavzu bo'yicha savollarim bor..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                className="w-full bg-slate-50 border-2 border-transparent rounded-[22px] p-4 text-[14px] font-bold text-slate-800 placeholder:text-slate-300 focus:border-[#0088cc]/10 focus:bg-white outline-none min-h-[90px] max-h-[120px] resize-none transition-all shadow-inner"
+              />
+            </div>
+          </div>
+        )}
+
+        <div className="flex gap-3">
+          <Dialog.Close asChild>
+            <button className="flex-1 py-4 rounded-2xl font-black text-slate-400 bg-slate-100 active:scale-95 transition-all text-[11px] tracking-widest uppercase">
+              Bekor qilish
+            </button>
+          </Dialog.Close>
+          <button
+            onClick={handleConfirmBooking}
+            disabled={isBooking}
+            className="flex-[2] py-4 rounded-2xl bg-[#0088cc] text-white font-black shadow-lg shadow-blue-500/20 active:scale-95 transition-all disabled:opacity-50 text-[11px] tracking-widest uppercase"
+          >
+            {isBooking ? 'Yuborilmoqda...' : 'Tasdiqlash'}
+          </button>
+        </div>
+      </div>
+    </Dialog.Content>
+  </Dialog.Portal>
+</Dialog.Root>
     </div>
   );
 }
