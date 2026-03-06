@@ -100,12 +100,12 @@ export default function TeacherDetailPage() {
       
       {/* 🏙 PREMIUM HEADER */}
       <div className="relative bg-[#0088cc] pt-6 pb-16 px-6 rounded-b-[45px] shadow-xl shadow-[#0088cc]/20">
-        <button 
+        {/* <button 
           onClick={() => navigate(-1)}
           className="mb-6 w-10 h-10 flex items-center justify-center bg-white/20 backdrop-blur-md rounded-xl border border-white/20 active:scale-90"
         >
           <ChevronLeft className="w-6 h-6 text-white" />
-        </button>
+        </button> */}
 
         <div className="flex items-center gap-5">
           <div className="relative">
@@ -114,7 +114,7 @@ export default function TeacherDetailPage() {
             </div>
           </div>
           <div>
-            <h1 className="text-2xl font-black text-white leading-tight tracking-tight italic">
+            <h1 className="text-2xl font-black text-white">
               {teacher.full_name}
             </h1>
             <div className="flex items-center gap-1.5 mt-1.5 opacity-90">
@@ -196,7 +196,7 @@ export default function TeacherDetailPage() {
                   <div>
                     <p className="text-[10px] font-black text-[#0088cc] uppercase tracking-widest mb-1">Dars vaqti</p>
                     <p className="font-black text-slate-800 text-lg leading-none">
-                      {formatDate(selectedDate)} @ {selectedSlot.time.slice(0, 5)}
+                      {formatDate(selectedDate)} - {selectedSlot.time.slice(0, 5)}
                     </p>
                   </div>
                 </div>
